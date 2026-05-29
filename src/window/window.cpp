@@ -19,7 +19,7 @@ int Window::run() {
         return -1;
     }
     
-    window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, TITLE, NULL, NULL);
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -53,7 +53,7 @@ int Window::run() {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         glViewport( 0, 0, w, h );
-        glClearColor(0.1, 0.6, 0.4, 1);
+        glClearColor(.05, .35, .13, 1);
         glClear(GL_COLOR_BUFFER_BIT);
         
         drawer->draw();

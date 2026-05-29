@@ -3,6 +3,8 @@
 
 #include <shapes/points.h>
 
+#define MAX_DIST 4294967295u
+
 using namespace std;
 
 void Point::get_pos(vec2 out) {
@@ -43,14 +45,20 @@ void PointsManager::add_point(vec2 cursor) {
 }
 
 bool PointsManager::add_selected_points(vec2 cursor) {
+    unsigned int nearest = -1;
+    unsigned int min_dist = MAX_DIST;
     for (int i = 0; i < points.size(); ++i) {
         vec2 sub;
         vec2_sub(sub, vec2{poses[i*2], poses[i*2+1]}, cursor);
-        if (vec2_len(sub) < SELECTION_RADIUS) {
-            selected_ids.push_back(i);
-            return true;
+        float current_dist = vec2_len(sub);
+        if (current_dist < min_dist) {
+            nearest = i;
+            min_dist = current_dist;
         }
-        
+    }
+    if (nearest != -1 && min_dist < SELECTION_RADIUS) {
+        selected_ids.push_back(nearest);
+        return true;
     }
     return false;
 }
