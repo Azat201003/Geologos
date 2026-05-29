@@ -14,20 +14,19 @@ void Point::get_pos(vec2 out) {
 }
 
 void PointsManager::draw() {
-    if (!points.empty()) {
-        glPointSize(POINTS_SIZE);
-        glEnableClientState(GL_VERTEX_ARRAY);
-            glVertexPointer(2, GL_FLOAT, 0, poses.data());
-            glColor3fv(POINT_COLOR);
-            glDrawArrays(GL_POINTS, 0, poses.size()/2);
-        
+    if (points.empty()) return;
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, poses.data());
         if (!selected_ids.empty()) {
             glPointSize(SELECTED_POINTS_SIZE);
             glColor3fv(SELECTED_POINT_COLOR);
             glDrawElements(GL_POINTS, selected_ids.size(), GL_UNSIGNED_INT, selected_ids.data());
         }
-        glDisableClientState(GL_VERTEX_ARRAY);
-    }
+        glPointSize(POINTS_SIZE);
+        glColor3fv(POINT_COLOR);
+        glDrawArrays(GL_POINTS, 0, poses.size()/2);
+    glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 Point::Point(float* pos) {
@@ -35,7 +34,7 @@ Point::Point(float* pos) {
 }
 
 PointsManager::PointsManager() {
-    
+    Drawer::get_drawer().add_object(this);
 }
 
 void PointsManager::add_point(vec2 cursor) {
@@ -61,6 +60,19 @@ bool PointsManager::add_selected_points(vec2 cursor) {
         return true;
     }
     return false;
+}
+
+unsigned int PointsManager::add_selected_points(vec2 begin_pos, vec2 end_pos) {
+    if (begin_pos[0] > end_pos[0]) swap(begin_pos[0], end_pos[0]);
+    if (begin_pos[1] > end_pos[1]) swap(begin_pos[1], end_pos[1]);
+
+    int cnt = 0;
+
+    for (int i = 0; i < points.size(); ++i)
+        if (begin_pos[0] <= poses[i*2]   && poses[i*2]   <= end_pos[0] &&
+            begin_pos[1] <= poses[i*2+1] && poses[i*2+1] <= end_pos[1])
+            selected_ids.push_back(i);
+    return cnt;
 }
 
 void PointsManager::clear_selected_points() {

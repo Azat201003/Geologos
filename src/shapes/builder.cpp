@@ -2,7 +2,6 @@
 
 #include <shapes/builder.h>
 
-void ShapesBuilder::build(Drawer* drawer) {
+void ShapesBuilder::build() {
     points_manager = new PointsManager();
-    drawer->add_object(points_manager);
 }

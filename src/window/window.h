@@ -1,4 +1,3 @@
-#include <window/graphics/drawer.h>
 #include <window/controller/controller.h>
 #include <string>
 
@@ -10,7 +9,6 @@ private:
     const char* TITLE = "Geologos";
 public:
     Window();
-    Drawer* drawer;
     EventHandler* event_handler;
     int run();
 };

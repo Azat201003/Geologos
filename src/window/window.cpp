@@ -4,10 +4,8 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <math.h>
-#include <window/graphics/drawer.h>
 
 Window::Window() {
-    drawer = new Drawer();
     shapes_builder = new ShapesBuilder();
     event_handler = new EventHandler(shapes_builder);
 }
@@ -30,12 +28,13 @@ int Window::run() {
         return -1;
     }
     
-    shapes_builder->build(drawer);
+    shapes_builder->build();
 
     glfwMakeContextCurrent(window);
 
     glfwSetKeyCallback(window, event_handler->key_callback);
     glfwSetMouseButtonCallback(window, event_handler->mouse_button_callback);
+    glfwSetCursorPosCallback(window, event_handler->cursor_position_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         return -1;
@@ -56,7 +55,7 @@ int Window::run() {
         glClearColor(.05, .35, .13, 1);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        drawer->draw();
+        Drawer::get_drawer().draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
