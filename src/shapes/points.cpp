@@ -1,7 +1,8 @@
+#include <shapes/points.h>
+
 #include <glad/glad.h>
 #include <iostream>
-
-#include <shapes/points.h>
+#include <window/graphics/helpers.h>
 
 #define MAX_DIST 4294967295u
 
@@ -33,10 +34,6 @@ Point::Point(float* pos) {
     this->pos = pos;
 }
 
-PointsManager::PointsManager() {
-    Drawer::get_drawer().add_object(this);
-}
-
 void PointsManager::add_point(vec2 cursor) {
     poses.push_back(cursor[0]);
     poses.push_back(cursor[1]);
@@ -66,12 +63,15 @@ unsigned int PointsManager::add_selected_points(vec2 begin_pos, vec2 end_pos) {
     if (begin_pos[0] > end_pos[0]) swap(begin_pos[0], end_pos[0]);
     if (begin_pos[1] > end_pos[1]) swap(begin_pos[1], end_pos[1]);
 
+    vec4 borders{begin_pos[0], begin_pos[1], end_pos[0], end_pos[1]};
+
     int cnt = 0;
 
-    for (int i = 0; i < points.size(); ++i)
-        if (begin_pos[0] <= poses[i*2]   && poses[i*2]   <= end_pos[0] &&
-            begin_pos[1] <= poses[i*2+1] && poses[i*2+1] <= end_pos[1])
+    for (int i = 0; i < points.size(); ++i) {
+        vec2 pos{poses[i*2], poses[i*2+1]};
+        if (inside(borders, pos))
             selected_ids.push_back(i);
+    }
     return cnt;
 }
 

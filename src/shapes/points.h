@@ -23,7 +23,7 @@ private:
     const vec3 SELECTED_POINT_COLOR = {.9, .7, .1};
     const float SELECTION_RADIUS = 15;
 public:
-    PointsManager();
+    PointsManager() : Drawable() {}
     void draw() override;
     void add_point(vec2);
     bool add_selected_points(vec2);

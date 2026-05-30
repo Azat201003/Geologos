@@ -13,10 +13,15 @@ add_executable(Geologos
     src/main.cpp
     src/shapes/points.cpp
     src/shapes/builder.cpp
-    src/window/graphics/drawer.cpp
     src/window/window.cpp
+    src/window/graphics/drawer.cpp
+    src/window/graphics/helpers.cpp
     src/window/controller/controller.cpp
-    src/window/controller/controller.h)
+    src/window/interface/interface.cpp
+    src/window/interface/instruments.cpp
+    src/window/interface/builder.cpp
+    src/window/controller/callbackable.cpp
+)
 
 target_include_directories(Geologos PRIVATE "external")
 target_include_directories(Geologos PRIVATE src)

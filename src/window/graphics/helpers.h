@@ -1,16 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
+#include <linmath.h>
 
-void drawCircle( GLfloat x, GLfloat y, GLfloat z, GLfloat radius, GLint numberOfSides )
-{
-    GLfloat twicePi = 2.0f * M_PI;
-    glBegin(GL_TRIANGLE_FAN);
-    glColor4f(0.3, 0, 0, 0.1);
-    glVertex2f(x, y);
-    for ( int i = 0; i <= numberOfSides; i++ ) {
-        glColor4f(0.3, cos(i * twicePi / numberOfSides)*2+1, sin(i * twicePi / numberOfSides)*2+1, 0.1);
-        glVertex2f(x + (radius * cos(i *  twicePi / numberOfSides)), y + (radius * sin( i * twicePi / numberOfSides)));
-    }
-    glEnd();
-}
+void drawCircle(GLfloat x, GLfloat y, GLfloat z, GLfloat radius, GLint numberOfSides);
+
+bool inside(vec4 borders, vec2 point); // x1, y1, x2, y2, x3, y3
+
+void get_vertices(vec4 in, float out[8]);

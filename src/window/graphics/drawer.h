@@ -2,8 +2,12 @@
 
 #include <vector>
 
+class Drawer;
+
 class Drawable {
 public:
+    Drawable();
+    ~Drawable();
     virtual void draw() = 0;
 };
 
@@ -21,4 +25,5 @@ public:
     }
     void draw();
     void add_object(Drawable*);
+    void remove_object(Drawable*);
 };
