@@ -4,10 +4,13 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <math.h>
+#include <window/interface/builder.h>
+#include <window/interface/instruments.h>
 
 Window::Window() {
-    shapes_builder = new ShapesBuilder();
-    event_handler = new EventHandler(shapes_builder);
+    context = new Context{};
+    context->shapes_builder = new ShapesBuilder();
+    context->set_current_instrument(new PointCreatorInstrument(context));
 }
 
 int Window::run() {
@@ -27,14 +30,20 @@ int Window::run() {
         glfwTerminate();
         return -1;
     }
-    
-    shapes_builder->build();
+
+    int w, h;
+    glfwGetWindowSize(window, &w, &h);
+
+    context->shapes_builder->build();
+
+    InterfaceBuilder* interface_builder = new DefaultInterfaceBuilder();
+    interface_builder->build(context, w, h);
 
     glfwMakeContextCurrent(window);
 
-    glfwSetKeyCallback(window, event_handler->key_callback);
-    glfwSetMouseButtonCallback(window, event_handler->mouse_button_callback);
-    glfwSetCursorPosCallback(window, event_handler->cursor_position_callback);
+    glfwSetKeyCallback(window, EventHandler::key_callback);
+    glfwSetMouseButtonCallback(window, EventHandler::mouse_button_callback);
+    glfwSetCursorPosCallback(window, EventHandler::cursor_position_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         return -1;
@@ -44,7 +53,6 @@ int Window::run() {
     glLoadIdentity();
 
     while (!glfwWindowShouldClose(window)) {
-        int w, h;
         glfwGetWindowSize(window, &w, &h);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
