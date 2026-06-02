@@ -1,9 +1,16 @@
-all: bld run
+.PHONY: run clear
 
-bld:
-	mkdir -p build && \
-	cmake build -S . -B ./build -DCMAKE_BUILD_TYPE=Debug && \
-	make -j -C build
+all: run
 
-run:
-	build/Geologos
+build/Geologos: CMakeLists.txt | build
+	cd build && cmake ..
+	cmake --build build --target Geologos -- -j $(nproc)
+
+build:
+	mkdir -p $@
+
+run: build/Geologos
+	$^
+
+clear:
+	rm -rf build/*
