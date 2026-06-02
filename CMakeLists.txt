@@ -21,6 +21,7 @@ add_executable(Geologos
     src/window/interface/instruments.cpp
     src/window/interface/builder.cpp
     src/window/controller/callbackable.cpp
+    src/context.cpp
 )
 
 target_include_directories(Geologos PRIVATE "external")

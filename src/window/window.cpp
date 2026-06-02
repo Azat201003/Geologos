@@ -10,7 +10,7 @@
 Window::Window() {
     context = new Context{};
     context->shapes_builder = new ShapesBuilder();
-    context->current_instrument = new PointCreatorInstrument(context);
+    context->set_current_instrument(new PointCreatorInstrument(context));
 }
 
 int Window::run() {

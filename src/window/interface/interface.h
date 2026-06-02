@@ -42,6 +42,7 @@ protected:
     std::function<void(void)> on_hover_dummy;
     std::function<void(void)> off_hover_dummy;
     bool hover = false;
+    bool click_started = false;
 public:
     ButtonGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color, std::function<void(void)> onclick,
                                                                             std::function<void(void)> onhover,

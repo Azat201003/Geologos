@@ -1,22 +1,26 @@
 #include <window/interface/instruments.h>
 #include <glad/glad.h>
 
-void PointCreatorInstrument::first_click_action_release(GLFWwindow*, vec2 pos) {
+void PointCreatorInstrument::first_click_action_release(GLFWwindow*, vec2 pos, bool inside) {
+    if (!inside) return;
     context->shapes_builder->points_manager->clear_selected_points();
     context->shapes_builder->points_manager->add_selected_points(pos);
 }
 
-void PointCreatorInstrument::second_click_action_release(GLFWwindow*, vec2 pos) {
+void PointCreatorInstrument::second_click_action_release(GLFWwindow*, vec2 pos, bool inside) {
+    if (!inside) return;
     context->shapes_builder->points_manager->add_point(pos);
 }
 
-void PointCreatorInstrument::third_click_action_release(GLFWwindow*, vec2 pos) {
+void PointCreatorInstrument::third_click_action_release(GLFWwindow*, vec2 pos, bool inside) {
+    if (!inside) return;
     context->shapes_builder->points_manager->add_selected_points(pos);
 }
 
 
 
-void PointSelectorInstrument::first_click_action_press(GLFWwindow*, vec2 begin_pos) {
+void PointSelectorInstrument::first_click_action_press(GLFWwindow*, vec2 begin_pos, bool inside) {
+    if (!inside) return;
     this->begin_pos[0] = begin_pos[0];
     this->begin_pos[1] = begin_pos[1];
     this->current_pos[0] = begin_pos[0];
@@ -25,12 +29,13 @@ void PointSelectorInstrument::first_click_action_press(GLFWwindow*, vec2 begin_p
     context->shapes_builder->points_manager->clear_selected_points();
 }
 
-void PointSelectorInstrument::first_click_action_release(GLFWwindow*, vec2 end_pos) {
+void PointSelectorInstrument::first_click_action_release(GLFWwindow*, vec2 end_pos, bool) {
     selection = false;
     context->shapes_builder->points_manager->add_selected_points(begin_pos, end_pos);
 }
 
-void PointSelectorInstrument::third_click_action_press(GLFWwindow*, vec2 begin_pos) {
+void PointSelectorInstrument::third_click_action_press(GLFWwindow*, vec2 begin_pos, bool inside) {
+    if (!inside) return;
     this->begin_pos[0] = begin_pos[0];
     this->begin_pos[1] = begin_pos[1];
     this->current_pos[0] = begin_pos[0];
@@ -38,12 +43,12 @@ void PointSelectorInstrument::third_click_action_press(GLFWwindow*, vec2 begin_p
     selection = true;
 }
 
-void PointSelectorInstrument::third_click_action_release(GLFWwindow*, vec2 end_pos) {
+void PointSelectorInstrument::third_click_action_release(GLFWwindow*, vec2 end_pos, bool) {
     selection = false;
     context->shapes_builder->points_manager->add_selected_points(begin_pos, end_pos);
 }
 
-void PointSelectorInstrument::action_move(GLFWwindow*, vec2 current_pos) {
+void PointSelectorInstrument::action_move(GLFWwindow*, vec2 current_pos, bool) {
     this->current_pos[0] = current_pos[0];
     this->current_pos[1] = current_pos[1];
 }

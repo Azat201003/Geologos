@@ -7,7 +7,7 @@ class Drawer;
 class Drawable {
 public:
     Drawable();
-    ~Drawable();
+    virtual ~Drawable();
     virtual void draw() = 0;
 };
 

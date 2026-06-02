@@ -6,12 +6,10 @@ void DefaultInterfaceBuilder::build(Context* context, int w, int h) {
     InterfaceGlyph* field = new FieldGlyph(context, vec2{0., 0.}, vec2{.8, 1.});
     InterfaceGlyph* instruments_selector = new FilledGlyph(context, vec2{.8, 0.}, vec2{.2, 1.});
     InterfaceGlyph* instrument1_button = new RadioButtonGlyph(context, vec2{0., 0.}, vec2{1., .1}, vec3{.2, .1, .3}, [context] () {
-        delete context->current_instrument;
-        context->current_instrument = new PointSelectorInstrument(context);
+        context->set_current_instrument(new PointSelectorInstrument(context));
     }, [] () {}, [] () {});
     InterfaceGlyph* instrument2_button = new RadioButtonGlyph(context, vec2{0., .1}, vec2{1., .1}, vec3{.2, .1, .4}, [context] () {
-        delete context->current_instrument;
-        context->current_instrument = new PointCreatorInstrument(context);
+        context->set_current_instrument(new PointCreatorInstrument(context));
     }, [] () {}, [] () {});
     instruments_selector->add_child(instrument1_button);
     instruments_selector->add_child(instrument2_button);

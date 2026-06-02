@@ -46,8 +46,9 @@ void InterfaceGlyph::update_pos(vec4 new_pos) {
 }
 
 void ButtonGlyph::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    if (hover && button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-        on_click();
+    if (hover && button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && click_started) on_click();
+    if (button == GLFW_MOUSE_BUTTON_LEFT) click_started = false;
+    if (hover && button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) click_started = true;
 }
 
 void ButtonGlyph::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -55,7 +56,6 @@ void ButtonGlyph::cursor_position_callback(GLFWwindow* window, double xpos, doub
         glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
         if (hover) return;
         on_hover();
-        std::cout << 1 << std::endl;
         hover = true;
         FILL_COLOR[0] = .5;
     } else {
@@ -77,34 +77,36 @@ void RadioButtonGlyph::unselect() {
 }
 
 void FieldGlyph::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    
+
 }
 
 void FieldGlyph::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     double x, y;
     glfwGetCursorPos(window, &x, &y);
     vec2 pos{x, y};
-    if (!inside(this->pos, pos)) return;
+    bool is_inside = inside(this->pos, pos);
     if (button == GLFW_MOUSE_BUTTON_LEFT && mods == 0) {
         if (action == GLFW_PRESS)
-            context->current_instrument->first_click_action_press(window, pos);
+            context->get_current_instrument()->first_click_action_press(window, pos, is_inside);
         else if (action == GLFW_RELEASE)
-            context->current_instrument->first_click_action_release(window, pos);
+            context->get_current_instrument()->first_click_action_release(window, pos, is_inside);
     } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (action == GLFW_PRESS)
-            context->current_instrument->second_click_action_press(window, pos);
+            context->get_current_instrument()->second_click_action_press(window, pos, is_inside);
         else if (action == GLFW_RELEASE)
-            context->current_instrument->second_click_action_release(window, pos);
+            context->get_current_instrument()->second_click_action_release(window, pos, is_inside);
     } else if (button == GLFW_MOUSE_BUTTON_LEFT && mods == GLFW_MOD_CONTROL) {
         if (action == GLFW_PRESS)
-            context->current_instrument->third_click_action_press(window, pos);
+            context->get_current_instrument()->third_click_action_press(window, pos, is_inside);
         else if (action == GLFW_RELEASE)
-            context->current_instrument->third_click_action_release(window, pos);
+            context->get_current_instrument()->third_click_action_release(window, pos, is_inside);
     }
 }
 
 void FieldGlyph::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    context->current_instrument->action_move(window, vec2{float(xpos), float(ypos)});
+    vec2 pos{xpos, ypos};
+    bool is_inside = inside(this->pos, pos);
+    context->get_current_instrument()->action_move(window, vec2{float(xpos), float(ypos)}, is_inside);
 }
 
 void FilledGlyph::draw() {
