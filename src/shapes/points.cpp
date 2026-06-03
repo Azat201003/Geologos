@@ -9,9 +9,7 @@
 using namespace std;
 
 void Point::get_pos(vec2 out) {
-    out[0] = pos[0];
-    out[1] = pos[1];
-    return;
+    vec2_dup(out, pos);
 }
 
 void PointsManager::draw() {
@@ -69,7 +67,7 @@ unsigned int PointsManager::add_selected_points(vec2 begin_pos, vec2 end_pos) {
 
     for (int i = 0; i < points.size(); ++i) {
         vec2 pos{poses[i*2], poses[i*2+1]};
-        if (inside(borders, pos))
+        if (is_inside(borders, pos))
             selected_ids.push_back(i);
     }
     return cnt;

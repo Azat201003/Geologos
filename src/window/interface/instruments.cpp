@@ -1,5 +1,6 @@
 #include <window/interface/instruments.h>
 #include <glad/glad.h>
+#include <window/graphics/helpers.h>
 
 void PointCreatorInstrument::first_click_action_release(GLFWwindow*, vec2 pos, bool inside) {
     if (!inside) return;
@@ -21,10 +22,8 @@ void PointCreatorInstrument::third_click_action_release(GLFWwindow*, vec2 pos, b
 
 void PointSelectorInstrument::first_click_action_press(GLFWwindow*, vec2 begin_pos, bool inside) {
     if (!inside) return;
-    this->begin_pos[0] = begin_pos[0];
-    this->begin_pos[1] = begin_pos[1];
-    this->current_pos[0] = begin_pos[0];
-    this->current_pos[1] = begin_pos[1];
+    vec2_dup(this->begin_pos, begin_pos);
+    vec2_dup(this->current_pos, begin_pos);
     selection = true;
     context->shapes_builder->points_manager->clear_selected_points();
 }
@@ -55,17 +54,14 @@ void PointSelectorInstrument::action_move(GLFWwindow*, vec2 current_pos, bool) {
 
 void PointSelectorInstrument::draw() {
     if (!selection) return;
-    float vertexes[] {
-        begin_pos[0], begin_pos[1],
-        current_pos[0], begin_pos[1],
-        current_pos[0], current_pos[1],
-        begin_pos[0], current_pos[1],
-    };
+    
+    float vertices[8];
+    get_vertices(vec4{begin_pos[0], begin_pos[1], current_pos[0], current_pos[1]}, vertices);
 
     glEnable(GL_LINE_STIPPLE);
 
     glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(2, GL_FLOAT, 0, vertexes);
+        glVertexPointer(2, GL_FLOAT, 0, vertices);
         glColor3fv(SELECTION_COLOR);
         glLineWidth(SELECTION_LINE_WIDTH);
         glLineStipple(1, 0x00FF);

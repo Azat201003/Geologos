@@ -27,10 +27,7 @@ void InterfaceGlyph::add_child(InterfaceGlyph* child) {
 }
 
 void InterfaceGlyph::update_pos(vec4 new_pos) {
-    pos[0] = new_pos[0];
-    pos[1] = new_pos[1];
-    pos[2] = new_pos[2];
-    pos[3] = new_pos[3];
+    vec4_dup(pos, new_pos);
     for (InterfaceGlyph* child : children) {
         vec2 child_offset;
         vec2 child_scale;
@@ -43,6 +40,52 @@ void InterfaceGlyph::update_pos(vec4 new_pos) {
             (child_offset[1] + child_scale[1])*(pos[3]-pos[1]) + pos[1],
         });
     }
+    this->on_update_pos();
+}
+
+bool Focusable::is_focused() {
+    return focused;
+}
+
+Focusable::Focusable(FocusManager* fm) {
+    focus_manager = fm;
+    fm->add_focusable(this);
+}
+
+Focusable::~Focusable() {
+    focus_manager->remove_focusable(this);
+}
+
+void FocusableGlyph::on_update_pos() {
+    vec4_dup(this->focus_area, this->pos);
+
+    std::cout << this->focus_area[0] << " ";
+    std::cout << this->focus_area[1] << " ";
+    std::cout << this->focus_area[2] << " ";
+    std::cout << this->focus_area[3] << std::endl;
+
+    std::cout << 3 << std::endl;
+}
+
+void FocusManager::add_focusable(Focusable* focusable) {
+    this->focusables.insert(focusable);
+}
+
+void FocusManager::remove_focusable(Focusable* focusable) {
+    this->focusables.erase(focusable);
+}
+
+void FocusManager::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    bool focus_added = false;
+    
+    for (Focusable* focusable : focusables) {
+        focusable->focused = false;
+        if (is_inside(focusable->focus_area, vec2{float(xpos), float(ypos)}) && !focus_added) {
+            std::cout << 1 << std::endl;
+            focus_added = true;
+            focusable->focused = true;
+        }
+    }
 }
 
 void ButtonGlyph::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -52,7 +95,7 @@ void ButtonGlyph::mouse_button_callback(GLFWwindow* window, int button, int acti
 }
 
 void ButtonGlyph::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    if (inside(pos, vec2{float(xpos), float(ypos)})) {
+    if (is_inside(this->pos, vec2{float(xpos), float(ypos)})) {
         glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
         if (hover) return;
         on_hover();
@@ -84,29 +127,29 @@ void FieldGlyph::mouse_button_callback(GLFWwindow* window, int button, int actio
     double x, y;
     glfwGetCursorPos(window, &x, &y);
     vec2 pos{x, y};
-    bool is_inside = inside(this->pos, pos);
+    bool inside = this->is_focused();
     if (button == GLFW_MOUSE_BUTTON_LEFT && mods == 0) {
         if (action == GLFW_PRESS)
-            context->get_current_instrument()->first_click_action_press(window, pos, is_inside);
+            context->get_current_instrument()->first_click_action_press(window, pos, inside);
         else if (action == GLFW_RELEASE)
-            context->get_current_instrument()->first_click_action_release(window, pos, is_inside);
+            context->get_current_instrument()->first_click_action_release(window, pos, inside);
     } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (action == GLFW_PRESS)
-            context->get_current_instrument()->second_click_action_press(window, pos, is_inside);
+            context->get_current_instrument()->second_click_action_press(window, pos, inside);
         else if (action == GLFW_RELEASE)
-            context->get_current_instrument()->second_click_action_release(window, pos, is_inside);
+            context->get_current_instrument()->second_click_action_release(window, pos, inside);
     } else if (button == GLFW_MOUSE_BUTTON_LEFT && mods == GLFW_MOD_CONTROL) {
         if (action == GLFW_PRESS)
-            context->get_current_instrument()->third_click_action_press(window, pos, is_inside);
+            context->get_current_instrument()->third_click_action_press(window, pos, inside);
         else if (action == GLFW_RELEASE)
-            context->get_current_instrument()->third_click_action_release(window, pos, is_inside);
+            context->get_current_instrument()->third_click_action_release(window, pos, inside);
     }
 }
 
 void FieldGlyph::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     vec2 pos{xpos, ypos};
-    bool is_inside = inside(this->pos, pos);
-    context->get_current_instrument()->action_move(window, vec2{float(xpos), float(ypos)}, is_inside);
+    bool inside = this->is_focused();
+    context->get_current_instrument()->action_move(window, vec2{float(xpos), float(ypos)}, inside);
 }
 
 void FilledGlyph::draw() {
@@ -117,4 +160,19 @@ void FilledGlyph::draw() {
         glColor3fv(FILL_COLOR);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void FocusableFilledGlyph::draw() {
+    glEnableClientState(GL_VERTEX_ARRAY);
+        float vertices[8];
+        get_vertices(pos, vertices);
+        glVertexPointer(2, GL_FLOAT, 0, vertices);
+        glColor3fv(FILL_COLOR);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void Focusable::on_z_index_update() {
+    focus_manager->remove_focusable(this);
+    focus_manager->add_focusable(this);
 }

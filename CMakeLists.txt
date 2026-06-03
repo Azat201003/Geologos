@@ -16,6 +16,7 @@ add_executable(Geologos
     src/window/window.cpp
     src/window/graphics/drawer.cpp
     src/window/graphics/helpers.cpp
+    src/window/graphics/zindex.cpp
     src/window/controller/controller.cpp
     src/window/interface/interface.cpp
     src/window/interface/instruments.cpp
