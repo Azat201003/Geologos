@@ -2,11 +2,16 @@
 
 #include <algorithm>
 #include <iostream>
+#include <glad/glad.h>
 
 void Drawer::draw() {
-    for (Drawable* object : objects)
-        if (object != nullptr)
+    for (Drawable* object : objects) {
+        if (object != nullptr) {
+            object->pre_draw();
             object->draw();
+            object->post_draw();
+        }
+    }
 }
 
 void Drawer::add_object(Drawable* object) {
@@ -14,9 +19,7 @@ void Drawer::add_object(Drawable* object) {
 }
 
 void Drawer::remove_object(Drawable* object) {
-    std::cout << "Before: " << objects.size() << std::endl;
     objects.erase(std::remove(objects.begin(), objects.end(), object), objects.end());
-    std::cout << "After: " << objects.size() << std::endl;
 }
 
 Drawable::Drawable() {
@@ -24,6 +27,14 @@ Drawable::Drawable() {
 }
 
 Drawable::~Drawable() {
-    std::cout << 52 << std::endl;
     Drawer::get_drawer().remove_object(this);
+}
+
+void ZIndexedDrawable::pre_draw() {
+    glPushMatrix();
+    glTranslatef(0, 0, (-10+this->get_z_index())/10.f);
+}
+
+void ZIndexedDrawable::post_draw() {
+    glPopMatrix();
 }

@@ -32,6 +32,10 @@ Point::Point(float* pos) {
     this->pos = pos;
 }
 
+PointsManager::PointsManager() {
+    this->set_z_index(9);
+}
+
 void PointsManager::add_point(vec2 cursor) {
     poses.push_back(cursor[0]);
     poses.push_back(cursor[1]);

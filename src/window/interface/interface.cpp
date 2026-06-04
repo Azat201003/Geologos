@@ -6,20 +6,16 @@
 #include <iostream>
 
 InterfaceGlyph::InterfaceGlyph(Context* context, vec2 offset, vec2 scale) : context(context) {
-    this->offset[0] = offset[0];
-    this->offset[1] = offset[1];
-    this->scale[0] = scale[0];
-    this->scale[1] = scale[1];
+    vec2_dup(this->offset, offset);
+    vec2_dup(this->scale, scale);
 }
 
 void InterfaceGlyph::get_offset(vec2 out) {
-    out[0] = offset[0];
-    out[1] = offset[1];
+    vec2_dup(out, offset);
 }
 
 void InterfaceGlyph::get_scale(vec2 out) {
-    out[0] = scale[0];
-    out[1] = scale[1];
+    vec2_dup(out, scale);
 }
 
 void InterfaceGlyph::add_child(InterfaceGlyph* child) {
@@ -58,13 +54,6 @@ Focusable::~Focusable() {
 
 void FocusableGlyph::on_update_pos() {
     vec4_dup(this->focus_area, this->pos);
-
-    std::cout << this->focus_area[0] << " ";
-    std::cout << this->focus_area[1] << " ";
-    std::cout << this->focus_area[2] << " ";
-    std::cout << this->focus_area[3] << std::endl;
-
-    std::cout << 3 << std::endl;
 }
 
 void FocusManager::add_focusable(Focusable* focusable) {
@@ -81,7 +70,6 @@ void FocusManager::cursor_position_callback(GLFWwindow* window, double xpos, dou
     for (Focusable* focusable : focusables) {
         focusable->focused = false;
         if (is_inside(focusable->focus_area, vec2{float(xpos), float(ypos)}) && !focus_added) {
-            std::cout << 1 << std::endl;
             focus_added = true;
             focusable->focused = true;
         }
@@ -126,7 +114,7 @@ void FieldGlyph::key_callback(GLFWwindow* window, int key, int scancode, int act
 void FieldGlyph::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     double x, y;
     glfwGetCursorPos(window, &x, &y);
-    vec2 pos{x, y};
+    vec2 pos{float(x), float(y)};
     bool inside = this->is_focused();
     if (button == GLFW_MOUSE_BUTTON_LEFT && mods == 0) {
         if (action == GLFW_PRESS)
@@ -147,7 +135,7 @@ void FieldGlyph::mouse_button_callback(GLFWwindow* window, int button, int actio
 }
 
 void FieldGlyph::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    vec2 pos{xpos, ypos};
+    vec2 pos{float(xpos), float(ypos)};
     bool inside = this->is_focused();
     context->get_current_instrument()->action_move(window, vec2{float(xpos), float(ypos)}, inside);
 }
