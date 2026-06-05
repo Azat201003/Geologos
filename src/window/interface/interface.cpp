@@ -3,7 +3,6 @@
 #include <window/interface/interface.h>
 #include <window/interface/instruments.h>
 #include <window/graphics/helpers.h>
-#include <iostream>
 
 InterfaceGlyph::InterfaceGlyph(Context* context, vec2 offset, vec2 scale) : context(context) {
     vec2_dup(this->offset, offset);

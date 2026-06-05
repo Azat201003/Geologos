@@ -1,5 +1,6 @@
 #include <window/interface/builder.h>
 #include <window/interface/instruments.h>
+#include <iostream>
 
 void DefaultInterfaceBuilder::build(Context* context, int w, int h) {
     FocusManager* focus_manager = new FocusManager();
@@ -25,4 +26,9 @@ void DefaultInterfaceBuilder::build(Context* context, int w, int h) {
     main->add_child(details);
     main->update_pos(vec4{0, 0, float(w), float(h)});
     root = main;
+}
+
+void DefaultInterfaceBuilder::resize_callback(GLFWwindow* window, int width, int height) {
+    std::cout << 1 << std::endl;
+    root->update_pos(vec4{0, 0, float(width), float(height)});
 }

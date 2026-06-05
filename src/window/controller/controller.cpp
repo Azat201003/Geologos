@@ -1,6 +1,7 @@
 #include <window/controller/controller.h>
 
 #include <algorithm>
+#include <iostream>
 
 std::vector<Callbackable*> EventHandler::listeners{};
 
@@ -19,6 +20,11 @@ void EventHandler::mouse_button_callback(GLFWwindow* window, int button, int act
 void EventHandler::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     for (Callbackable* listener : listeners)
         listener->cursor_position_callback(window, xpos, ypos);
+}
+
+void EventHandler::resize_callback(GLFWwindow* window, int width, int height) {
+    for (Callbackable* listener : listeners)
+        listener->resize_callback(window, width, height);
 }
 
 void EventHandler::add_listener(Callbackable* listener) {

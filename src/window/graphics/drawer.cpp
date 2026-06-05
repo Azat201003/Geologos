@@ -1,7 +1,6 @@
 #include <window/graphics/drawer.h>
 
 #include <algorithm>
-#include <iostream>
 #include <glad/glad.h>
 
 void Drawer::draw() {

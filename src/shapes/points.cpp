@@ -1,7 +1,6 @@
 #include <shapes/points.h>
 
 #include <glad/glad.h>
-#include <iostream>
 #include <window/graphics/helpers.h>
 
 #define MAX_DIST 4294967295u
@@ -14,7 +13,7 @@ void Point::get_pos(vec2 out) {
 
 void PointsManager::draw() {
     if (points.empty()) return;
-
+    glPushMatrix();
     glEnableClientState(GL_VERTEX_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, poses.data());
         if (!selected_ids.empty()) {
@@ -22,10 +21,12 @@ void PointsManager::draw() {
             glColor3fv(SELECTED_POINT_COLOR);
             glDrawElements(GL_POINTS, selected_ids.size(), GL_UNSIGNED_INT, selected_ids.data());
         }
+        glTranslatef(0, 0, .01);
         glPointSize(POINTS_SIZE);
         glColor3fv(POINT_COLOR);
         glDrawArrays(GL_POINTS, 0, poses.size()/2);
     glDisableClientState(GL_VERTEX_ARRAY);
+    glPopMatrix();
 }
 
 Point::Point(float* pos) {
@@ -62,11 +63,7 @@ bool PointsManager::add_selected_points(vec2 cursor) {
 }
 
 unsigned int PointsManager::add_selected_points(vec2 begin_pos, vec2 end_pos) {
-    if (begin_pos[0] > end_pos[0]) swap(begin_pos[0], end_pos[0]);
-    if (begin_pos[1] > end_pos[1]) swap(begin_pos[1], end_pos[1]);
-
     vec4 borders{begin_pos[0], begin_pos[1], end_pos[0], end_pos[1]};
-
     int cnt = 0;
 
     for (int i = 0; i < points.size(); ++i) {

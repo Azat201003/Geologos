@@ -44,6 +44,7 @@ int Window::run() {
     glfwSetKeyCallback(window, EventHandler::key_callback);
     glfwSetMouseButtonCallback(window, EventHandler::mouse_button_callback);
     glfwSetCursorPosCallback(window, EventHandler::cursor_position_callback);
+    glfwSetFramebufferSizeCallback(window, EventHandler::resize_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         return -1;
