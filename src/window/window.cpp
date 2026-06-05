@@ -44,6 +44,7 @@ int Window::run() {
     glfwSetKeyCallback(window, EventHandler::key_callback);
     glfwSetMouseButtonCallback(window, EventHandler::mouse_button_callback);
     glfwSetCursorPosCallback(window, EventHandler::cursor_position_callback);
+    glfwSetFramebufferSizeCallback(window, EventHandler::resize_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         return -1;
@@ -52,6 +53,8 @@ int Window::run() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    glEnable(GL_DEPTH_TEST);
+
     while (!glfwWindowShouldClose(window)) {
         glfwGetWindowSize(window, &w, &h);
         glMatrixMode(GL_PROJECTION);
@@ -59,9 +62,9 @@ int Window::run() {
         glOrtho(0, w, h, 0, 0, 1);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        glViewport( 0, 0, w, h );
+        glViewport(0, 0, w, h);
         glClearColor(.05, .35, .13, 1);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         Drawer::get_drawer().draw();
 

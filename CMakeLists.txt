@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 project(Geologos)
 
+set(CMAKE_C_COMPILER "clang")
+set(CMAKE_CXX_COMPILER "clang++")
+
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
@@ -11,6 +14,7 @@ include_directories(src)
 
 add_executable(Geologos
     src/main.cpp
+    src/context.cpp
     src/shapes/points.cpp
     src/shapes/builder.cpp
     src/window/window.cpp
@@ -22,7 +26,6 @@ add_executable(Geologos
     src/window/interface/instruments.cpp
     src/window/interface/builder.cpp
     src/window/controller/callbackable.cpp
-    src/context.cpp
 )
 
 target_include_directories(Geologos PRIVATE "external")

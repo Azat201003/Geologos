@@ -31,7 +31,7 @@ public:
 
 class FocusManager;
 
-class Focusable : public ZIndexed {
+class Focusable : public virtual ZIndexed {
 private:
     bool focused = false;
     FocusManager* focus_manager;
@@ -61,30 +61,34 @@ public:
     void remove_focusable(Focusable*);
 };
 
-class FilledGlyph : public InterfaceGlyph, public Drawable {
+class FilledGlyph : public InterfaceGlyph, public ZIndexedDrawable {
 protected:
     vec3 FILL_COLOR{.1, .2, .3};
 public:
-    FilledGlyph(Context* context, vec2 offset, vec2 scale) : InterfaceGlyph(context, offset, scale), Drawable() {}
-    FilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color) : InterfaceGlyph(context, offset, scale), Drawable() {
-        FILL_COLOR[0] = fill_color[0]; FILL_COLOR[1] = fill_color[1]; FILL_COLOR[2] = fill_color[2];
+    FilledGlyph(Context* context, vec2 offset, vec2 scale) : InterfaceGlyph(context, offset, scale) { this->set_z_index(7); }
+    FilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color) : InterfaceGlyph(context, offset, scale) {
+        vec3_dup(FILL_COLOR, fill_color);
+        set_z_index(7);
     }
     virtual void draw() override;
 };
 
-class FocusableFilledGlyph : public FocusableGlyph, public Drawable {
+class FocusableFilledGlyph : public FocusableGlyph, public ZIndexedDrawable {
 protected:
     vec3 FILL_COLOR{.1, .2, .3};
 public:
-    FocusableFilledGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager) : FocusableGlyph(context, offset, scale, focus_manager), Drawable() {}
-    FocusableFilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color, FocusManager* focus_manager) : FocusableGlyph(context, offset, scale, focus_manager), Drawable() {
+    FocusableFilledGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager) : FocusableGlyph(context, offset, scale, focus_manager) {
+        set_z_index(7);
+    }
+    FocusableFilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color, FocusManager* focus_manager) : FocusableGlyph(context, offset, scale, focus_manager) {
         FILL_COLOR[0] = fill_color[0]; FILL_COLOR[1] = fill_color[1]; FILL_COLOR[2] = fill_color[2];
+        set_z_index(7);
     }
     virtual void draw() override;
 };
 
 
-class ButtonGlyph : public Callbackable, public FilledGlyph, public Focusable {
+class ButtonGlyph : public Callbackable, public FocusableFilledGlyph {
 protected:
     std::function<void(void)> on_click_dummy;
     std::function<void(void)> on_hover_dummy;
@@ -93,11 +97,10 @@ protected:
     bool click_started = false;
 public:
     ButtonGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color, std::function<void(void)> onclick, FocusManager* focus_manager)
-                                                                                : FilledGlyph(context, offset, scale, fill_color), 
+                                                                                : FocusableFilledGlyph(context, offset, scale, fill_color, focus_manager), 
                                                                                 Callbackable(),
-                                                                                Focusable(focus_manager),
-                                                                                on_click_dummy(onclick) {}
-    virtual void on_click() {on_click_dummy();}
+                                                                                on_click_dummy(onclick) {set_z_index(8);}
+    virtual void on_click() { on_click_dummy(); }
     virtual void on_hover() {/* on_hover_dummy(); */}
     virtual void off_hover() {/* off_hover_dummy(); */}
     virtual void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) override;

@@ -18,7 +18,7 @@ public:
     virtual void action_move(GLFWwindow* window, vec2 pos, bool inside) {}
 };
 
-class PointSelectorInstrument : public Drawable, public Instrument {
+class PointSelectorInstrument : public ZIndexedDrawable, public Instrument {
 private:
     vec2 begin_pos{0,0};
     vec2 current_pos{0,0};
@@ -26,7 +26,7 @@ private:
     const vec3 SELECTION_COLOR{.7, .7, .7};
     const float SELECTION_LINE_WIDTH = 2;
 public:
-    PointSelectorInstrument(Context* context) : Instrument(context), Drawable() {}
+    PointSelectorInstrument(Context* context) : Instrument(context) { this->set_z_index(3); }
     void first_click_action_press(GLFWwindow*, vec2, bool) override;
     void first_click_action_release(GLFWwindow*, vec2, bool) override;
     void third_click_action_press(GLFWwindow*, vec2, bool) override;

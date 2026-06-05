@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <window/graphics/zindex.h>
 
 class Drawer;
 
@@ -8,7 +9,16 @@ class Drawable {
 public:
     Drawable();
     virtual ~Drawable();
+    virtual void pre_draw() {}
     virtual void draw() = 0;
+    virtual void post_draw() {}
+};
+
+class ZIndexedDrawable : public Drawable, public virtual ZIndexed {
+private:
+public:
+    void pre_draw() override;
+    void post_draw() override;
 };
 
 class Drawer {
