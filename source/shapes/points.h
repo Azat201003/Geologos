@@ -1,6 +1,7 @@
 #pragma once
 
 #include <window/graphics/drawer.h>
+#include <window/graphics/shaders.h>
 #include <vector>
 #include <linmath.h>
 
@@ -14,6 +15,7 @@ public:
 
 class PointsManager : public ZIndexedDrawable {
 private:
+    Shader* shader;
     std::vector<Point*> points;
     std::vector<float> poses;
     std::vector<unsigned int> selected_ids;

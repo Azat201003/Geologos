@@ -7,6 +7,7 @@
 #include <window/graphics/drawer.h>
 #include <window/graphics/zindex.h>
 #include <shapes/builder.h>
+#include <window/graphics/text.h>
 #include <context.h>
 #include <set>
 
@@ -40,6 +41,8 @@ protected:
 public:
     Focusable(FocusManager*);
     virtual ~Focusable();
+    virtual void on_focus() {}
+    virtual void off_focus() {}
     bool is_focused();
     void on_z_index_update() override;
     friend class FocusManager;
@@ -63,10 +66,15 @@ public:
 
 class FilledGlyph : public InterfaceGlyph, public ZIndexedDrawable {
 protected:
+    Shader* shader;
     vec3 FILL_COLOR{.1, .2, .3};
 public:
-    FilledGlyph(Context* context, vec2 offset, vec2 scale) : InterfaceGlyph(context, offset, scale) { this->set_z_index(7); }
+    FilledGlyph(Context* context, vec2 offset, vec2 scale) : InterfaceGlyph(context, offset, scale) {
+        shader = new Shader("resources/shaders/default/vertex.glsl", "resources/shaders/default/fragment.glsl");
+        this->set_z_index(7);
+    }
     FilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color) : InterfaceGlyph(context, offset, scale) {
+        shader = new Shader("resources/shaders/default/vertex.glsl", "resources/shaders/default/fragment.glsl");
         vec3_dup(FILL_COLOR, fill_color);
         set_z_index(7);
     }
@@ -75,12 +83,15 @@ public:
 
 class FocusableFilledGlyph : public FocusableGlyph, public ZIndexedDrawable {
 protected:
+    Shader* shader;
     vec3 FILL_COLOR{.1, .2, .3};
 public:
     FocusableFilledGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager) : FocusableGlyph(context, offset, scale, focus_manager) {
+        shader = new Shader("resources/shaders/default/vertex.glsl", "resources/shaders/default/fragment.glsl");
         set_z_index(7);
     }
     FocusableFilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color, FocusManager* focus_manager) : FocusableGlyph(context, offset, scale, focus_manager) {
+        shader = new Shader("resources/shaders/default/vertex.glsl", "resources/shaders/default/fragment.glsl");
         FILL_COLOR[0] = fill_color[0]; FILL_COLOR[1] = fill_color[1]; FILL_COLOR[2] = fill_color[2];
         set_z_index(7);
     }
@@ -136,6 +147,14 @@ public:
 class DetailsGlyph : public FocusableFilledGlyph {
 private:
     vec3 FILL_COLOR{.1, .2, .3};
+    TextDrawer* text_drawer = nullptr;
 public:
     DetailsGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager) : FocusableFilledGlyph(context, offset, scale, focus_manager) {}
+    void draw() override {
+        FocusableFilledGlyph::draw();
+        if (text_drawer == nullptr) {
+            text_drawer = new TextDrawer("resources/fonts/Lato-Black.ttf", 100);
+        }
+        text_drawer->render(0, 200, "some text", vec3{0, 0, 0});
+    }
 };

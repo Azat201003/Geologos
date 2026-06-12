@@ -1,7 +1,10 @@
 #include <window/graphics/drawer.h>
 
 #include <algorithm>
+#include <iostream>
 #include <glad/glad.h>
+#include <window/graphics/matrix.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 void Drawer::draw() {
     for (Drawable* object : objects) {
@@ -30,10 +33,11 @@ Drawable::~Drawable() {
 }
 
 void ZIndexedDrawable::pre_draw() {
-    glPushMatrix();
-    glTranslatef(0, 0, (-10+this->get_z_index())/10.f);
+    std::cout << 10 << std::endl;
+    matrix = glm::translate(matrix, glm::vec3(0, 0, (-10+this->get_z_index())/10.f));
 }
 
 void ZIndexedDrawable::post_draw() {
-    glPopMatrix();
+    std::cout << 20 << std::endl;
+    matrix = glm::translate(matrix, glm::vec3(0, 0, (10-this->get_z_index())/10.f));
 }

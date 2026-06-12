@@ -1,7 +1,11 @@
 #include <window/controller/controller.h>
 
+#include <glad/glad.h>
+
 #include <algorithm>
-#include <iostream>
+// #include <iostream>
+
+#include <window/graphics/matrix.h>
 
 std::vector<Callbackable*> EventHandler::listeners{};
 
@@ -23,6 +27,8 @@ void EventHandler::cursor_position_callback(GLFWwindow* window, double xpos, dou
 }
 
 void EventHandler::resize_callback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+    update_matrix(width, height);
     for (Callbackable* listener : listeners)
         listener->resize_callback(window, width, height);
 }

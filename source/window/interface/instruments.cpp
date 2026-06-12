@@ -1,5 +1,5 @@
-#include <window/interface/instruments.h>
 #include <glad/glad.h>
+#include <window/interface/instruments.h>
 #include <window/graphics/helpers.h>
 
 void PointCreatorInstrument::first_click_action_release(GLFWwindow*, vec2 pos, bool inside) {

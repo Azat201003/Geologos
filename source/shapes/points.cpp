@@ -2,6 +2,9 @@
 
 #include <glad/glad.h>
 #include <window/graphics/helpers.h>
+#include <window/graphics/matrix.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define MAX_DIST 4294967295u
 
@@ -12,21 +15,23 @@ void Point::get_pos(vec2 out) {
 }
 
 void PointsManager::draw() {
+    shader->use();
+    shader->set_mat4("matrix", matrix);
     if (points.empty()) return;
-    glPushMatrix();
     glEnableClientState(GL_VERTEX_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, poses.data());
         if (!selected_ids.empty()) {
             glPointSize(SELECTED_POINTS_SIZE);
-            glColor3fv(SELECTED_POINT_COLOR);
+            shader->set_vec4("inColor", glm::vec4(SELECTED_POINT_COLOR[0], SELECTED_POINT_COLOR[1], SELECTED_POINT_COLOR[2], 1));
             glDrawElements(GL_POINTS, selected_ids.size(), GL_UNSIGNED_INT, selected_ids.data());
         }
-        glTranslatef(0, 0, .01);
+        matrix = glm::translate(matrix, glm::vec3(0, 0, .01));
+        shader->set_mat4("matrix", matrix);
         glPointSize(POINTS_SIZE);
-        glColor3fv(POINT_COLOR);
+        shader->set_vec4("inColor", glm::vec4(POINT_COLOR[0], POINT_COLOR[1], POINT_COLOR[2], 1));
+        matrix = glm::translate(matrix, glm::vec3(0, 0, -.01));
         glDrawArrays(GL_POINTS, 0, poses.size()/2);
     glDisableClientState(GL_VERTEX_ARRAY);
-    glPopMatrix();
 }
 
 Point::Point(float* pos) {
@@ -34,6 +39,7 @@ Point::Point(float* pos) {
 }
 
 PointsManager::PointsManager() {
+    shader = new Shader("resources/shaders/default/vertex.glsl", "resources/shaders/default/fragment.glsl");
     this->set_z_index(9);
 }
 

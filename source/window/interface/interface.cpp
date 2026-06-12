@@ -3,6 +3,8 @@
 #include <window/interface/interface.h>
 #include <window/interface/instruments.h>
 #include <window/graphics/helpers.h>
+#include <window/graphics/matrix.h>
+#include <iostream>
 
 InterfaceGlyph::InterfaceGlyph(Context* context, vec2 offset, vec2 scale) : context(context) {
     vec2_dup(this->offset, offset);
@@ -67,10 +69,14 @@ void FocusManager::cursor_position_callback(GLFWwindow* window, double xpos, dou
     bool focus_added = false;
     
     for (Focusable* focusable : focusables) {
-        focusable->focused = false;
         if (is_inside(focusable->focus_area, vec2{float(xpos), float(ypos)}) && !focus_added) {
             focus_added = true;
+            if (!focusable->focused)
+                focusable->on_focus();
             focusable->focused = true;
+        } else if (focusable->focused) {
+            focusable->off_focus();
+            focusable->focused = false;
         }
     }
 }
@@ -140,16 +146,24 @@ void FieldGlyph::cursor_position_callback(GLFWwindow* window, double xpos, doubl
 }
 
 void FilledGlyph::draw() {
+    std::cout << 2 << std::endl;
+    shader->use();
+    shader->set_vec4("inColor", glm::vec4(FILL_COLOR[0], FILL_COLOR[1], FILL_COLOR[2], 1));
+    shader->set_mat4("matrix", matrix);
     glEnableClientState(GL_VERTEX_ARRAY);
         float vertices[8];
         get_vertices(pos, vertices);
         glVertexPointer(2, GL_FLOAT, 0, vertices);
-        glColor3fv(FILL_COLOR);
+        // glColor3fv(FILL_COLOR);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void FocusableFilledGlyph::draw() {
+    std::cout << 1 << std::endl;
+    shader->use();
+    shader->set_vec4("inColor", glm::vec4(FILL_COLOR[0], FILL_COLOR[1], FILL_COLOR[2], 1));
+    shader->set_mat4("matrix", matrix);
     glEnableClientState(GL_VERTEX_ARRAY);
         float vertices[8];
         get_vertices(pos, vertices);
