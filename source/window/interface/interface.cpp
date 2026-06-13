@@ -1,10 +1,12 @@
 #include <glad/glad.h>
-
-#include <window/interface/interface.h>
-#include <window/interface/instruments.h>
 #include <window/graphics/helpers.h>
 #include <window/graphics/matrix.h>
+#include <window/interface/instruments.h>
+#include <window/interface/interface.h>
+
 #include <iostream>
+
+#include "window/graphics/shaders.h"
 
 InterfaceGlyph::InterfaceGlyph(Context* context, vec2 offset, vec2 scale) : context(context) {
     vec2_dup(this->offset, offset);
@@ -146,7 +148,7 @@ void FieldGlyph::cursor_position_callback(GLFWwindow* window, double xpos, doubl
 }
 
 void FilledGlyph::draw() {
-    std::cout << 2 << std::endl;
+    auto shader = ShaderStorage::get_shader(ShaderKit::DEFAULT);
     shader->use();
     shader->set_vec4("inColor", glm::vec4(FILL_COLOR[0], FILL_COLOR[1], FILL_COLOR[2], 1));
     shader->set_mat4("matrix", matrix);
@@ -160,7 +162,7 @@ void FilledGlyph::draw() {
 }
 
 void FocusableFilledGlyph::draw() {
-    std::cout << 1 << std::endl;
+    auto shader = ShaderStorage::get_shader(ShaderKit::DEFAULT);
     shader->use();
     shader->set_vec4("inColor", glm::vec4(FILL_COLOR[0], FILL_COLOR[1], FILL_COLOR[2], 1));
     shader->set_mat4("matrix", matrix);

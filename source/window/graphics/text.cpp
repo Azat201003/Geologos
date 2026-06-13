@@ -1,10 +1,9 @@
-#include <window/graphics/text.h>
 #include <window/graphics/matrix.h>
+#include <window/graphics/text.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-// #include <iostream>
 
 FT_Library ft;
 
@@ -79,7 +78,7 @@ TextDrawer::TextDrawer(std::string fontpath, unsigned height) {
     
 }
 
-void TextDrawer::render(float x, float y, std::string text, vec3 color) {
+void TextDrawer::render(float x, float y, std::string text, glm::vec4 color) {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -89,6 +88,7 @@ void TextDrawer::render(float x, float y, std::string text, vec3 color) {
     shader->use();
     shader->set_int("ourTexture", 0);
     shader->set_mat4("matrix",  matrix);
+    shader->set_vec4("color",  color);
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);

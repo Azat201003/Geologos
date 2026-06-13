@@ -1,4 +1,7 @@
 #include <window/window.h>
+
+#include "window/graphics/shaders.h"
+
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
@@ -46,9 +49,6 @@ int Window::run() {
     glfwSetCursorPosCallback(window, EventHandler::cursor_position_callback);
     glfwSetFramebufferSizeCallback(window, EventHandler::resize_callback);
 
-    // glMatrixMode(GL_MODELVIEW);
-    // glLoadIdentity();
-
     glEnable(GL_DEPTH_TEST);
 
     update_matrix(w, h);
@@ -56,17 +56,12 @@ int Window::run() {
 
     glUseProgram(0);
     
+		ShaderStorage::load();
     context->shapes_builder->build();
     InterfaceBuilder* interface_builder = new DefaultInterfaceBuilder();
     interface_builder->build(context, w, h);
 
     while (!glfwWindowShouldClose(window)) {
-        // glfwGetWindowSize(window, &w, &h);
-        // glMatrixMode(GL_PROJECTION);
-        // glLoadIdentity();
-        // glOrtho(0, w, h, 0, 0, 1);
-        // glMatrixMode(GL_MODELVIEW);
-        // glLoadIdentity();
         glClearColor(.05, .35, .13, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         

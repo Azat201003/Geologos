@@ -1,8 +1,10 @@
 #pragma once
 
-#include <string>
-#include <linmath.h>
 #include <ft2build.h>
+#include <linmath.h>
+
+#include <string>
+
 #include FT_FREETYPE_H
 #include <map>
 
@@ -22,7 +24,7 @@ private:
     unsigned VAO;
     unsigned VBO;
 public:
-    void render(float x, float y, std::string text, vec3 color); // should be called only in opengl render thread
+    void render(float x, float y, std::string text, glm::vec4 color); // should be called only in opengl render thread
     void draw(); // should be called only in opengl render thread
     TextDrawer(std::string fontpath, unsigned height);
 };
