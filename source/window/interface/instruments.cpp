@@ -1,21 +1,21 @@
 #include <glad/glad.h>
-#include <window/interface/instruments.h>
 #include <window/graphics/helpers.h>
+#include <window/interface/instruments.h>
 
 void PointCreatorInstrument::first_click_action_release(GLFWwindow*, vec2 pos, bool inside) {
 	if (!inside) return;
 	context->shapes_builder->points_manager->clear_selected_points();
-	context->shapes_builder->points_manager->add_selected_points(pos);
+	context->shapes_builder->points_manager->add_selected_points(glm::vec2(pos[0], pos[1]));
 }
 
 void PointCreatorInstrument::second_click_action_release(GLFWwindow*, vec2 pos, bool inside) {
 	if (!inside) return;
-	context->shapes_builder->points_manager->add_point(pos);
+	context->shapes_builder->points_manager->add_point(glm::vec2(pos[0], pos[1]));
 }
 
 void PointCreatorInstrument::third_click_action_release(GLFWwindow*, vec2 pos, bool inside) {
 	if (!inside) return;
-	context->shapes_builder->points_manager->add_selected_points(pos);
+	context->shapes_builder->points_manager->add_selected_points(glm::vec2(pos[0], pos[1]));
 }
 
 
@@ -30,7 +30,7 @@ void PointSelectorInstrument::first_click_action_press(GLFWwindow*, vec2 begin_p
 
 void PointSelectorInstrument::first_click_action_release(GLFWwindow*, vec2 end_pos, bool) {
 	selection = false;
-	context->shapes_builder->points_manager->add_selected_points(begin_pos, end_pos);
+	context->shapes_builder->points_manager->add_selected_points(glm::vec2(begin_pos[0], begin_pos[1]), glm::vec2(end_pos[0], end_pos[1]));
 }
 
 void PointSelectorInstrument::third_click_action_press(GLFWwindow*, vec2 begin_pos, bool inside) {
@@ -44,7 +44,7 @@ void PointSelectorInstrument::third_click_action_press(GLFWwindow*, vec2 begin_p
 
 void PointSelectorInstrument::third_click_action_release(GLFWwindow*, vec2 end_pos, bool) {
 	selection = false;
-	context->shapes_builder->points_manager->add_selected_points(begin_pos, end_pos);
+	context->shapes_builder->points_manager->add_selected_points(glm::vec2(begin_pos[0], begin_pos[1]), glm::vec2(end_pos[0], end_pos[1]));
 }
 
 void PointSelectorInstrument::action_move(GLFWwindow*, vec2 current_pos, bool) {

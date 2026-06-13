@@ -12,6 +12,13 @@ void drawCircle(GLfloat x, GLfloat y, GLfloat z, GLfloat radius, GLint numberOfS
 	glEnd();
 }
 
+bool is_inside(glm::vec4 borders, glm::vec2 point) {
+	if (borders[0] > borders[2]) std::swap(borders[0], borders[2]);
+	if (borders[1] > borders[3]) std::swap(borders[1], borders[3]);
+	return (borders[0] <= point[0] && point[0] <= borders[2] &&
+			borders[1] <= point[1] && point[1] <= borders[3]);
+}
+
 bool is_inside(vec4 borders, vec2 point) {
 	if (borders[0] > borders[2]) std::swap(borders[0], borders[2]);
 	if (borders[1] > borders[3]) std::swap(borders[1], borders[3]);
