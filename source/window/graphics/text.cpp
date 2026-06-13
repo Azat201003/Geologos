@@ -1,9 +1,13 @@
 #include <window/graphics/matrix.h>
 #include <window/graphics/text.h>
 
+#include "window/graphics/shaders.h"
+
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+
+#include <algorithm>
 
 FT_Library ft;
 
@@ -63,36 +67,33 @@ TextDrawer::TextDrawer(std::string fontpath, unsigned height) {
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
 	
-	shader = new Shader("resources/shaders/textures/vertex.glsl", "resources/shaders/textures/fragment.glsl");
-
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
 }
 
 void TextDrawer::render(float x, float y, std::string text, glm::vec4 color) {
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	glActiveTexture(GL_TEXTURE0);
-
-	shader->use();
-	shader->set_int("ourTexture", 0);
-	shader->set_mat4("matrix",	matrix);
-	shader->set_vec4("color",  color);
+	rendered = true;
+	this->text = text;
+	this->color = color;
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
+	float vertices[text.size()*6][5];
+
+	int i = 0;
 	for (const char c : text) {
 		Character character = characters[c];
 
@@ -102,25 +103,83 @@ void TextDrawer::render(float x, float y, std::string text, glm::vec4 color) {
 		float w = character.size_x;
 		float h = character.size_y;
 		
-		float vertices[6][5] = {
-			{ xpos,		ypos,	0.f,   0.f, 0.f },			  
-			{ xpos,		ypos + h,		0.f,   0.f, 1.f },
-			{ xpos + w, ypos + h,		0.f,   1.f, 1.f },
+		vertices[6*i+0][0] = xpos;
+		vertices[6*i+0][1] = ypos;
+		vertices[6*i+0][2] = 0.f;
+		vertices[6*i+0][3] = 0.f;
+		vertices[6*i+0][4] = 0.f;
 
-			{ xpos,		ypos,	0.f,   0.f, 0.f },
-			{ xpos + w, ypos + h,		0.f,   1.f, 1.f },
-			{ xpos + w, ypos,	0.f,   1.f, 0.f }			
-		};
-
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
-		glBindTexture(GL_TEXTURE_2D, character.texture_id);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		vertices[6*i+1][0] = xpos;
+		vertices[6*i+1][1] = ypos + h;
+		vertices[6*i+1][2] = 0.f;
+		vertices[6*i+1][3] = 0.f;
+		vertices[6*i+1][4] = 1.f;
 		
+		vertices[6*i+2][0] = xpos + w;
+		vertices[6*i+2][1] = ypos + h;
+		vertices[6*i+2][2] = 0.f;
+		vertices[6*i+2][3] = 1.f;
+		vertices[6*i+2][4] = 1.f;
+		
+
+		vertices[6*i+3][0] = xpos;
+		vertices[6*i+3][1] = ypos;
+		vertices[6*i+3][2] = 0.f;
+		vertices[6*i+3][3] = 0.f;
+		vertices[6*i+3][4] = 0.f;
+		
+		vertices[6*i+4][0] = xpos + w;
+		vertices[6*i+4][1] = ypos + h;
+		vertices[6*i+4][2] = 0.f;
+		vertices[6*i+4][3] = 1.f;
+		vertices[6*i+4][4] = 1.f;
+		
+		vertices[6*i+5][0] = xpos + w;
+		vertices[6*i+5][1] = ypos;
+		vertices[6*i+5][2] = 0.f;
+		vertices[6*i+5][3] = 1.f;
+		vertices[6*i+5][4] = 0.f;
+
 		x += (character.advance >> 6);
+		++i;
 	}
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+bool TextDrawer::draw() {
+	if (!rendered) return false;
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	glActiveTexture(GL_TEXTURE0);
+
+	auto shader = ShaderStorage::get_shader(ShaderKit::TEXTURES);
+	shader->use();
+	shader->set_int("ourTexture", 0);
+	shader->set_mat4("matrix",	matrix);
+	shader->set_vec4("color",  color);
+	
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	int i = 0;
+	for (const char& c : text) {
+		Character character = characters[c];
+		glBindTexture(GL_TEXTURE_2D, character.texture_id);
+		glDrawArrays(GL_TRIANGLES, 6*i, 6);
+		i++;
+	}
+	
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
+	return true;
 }
+

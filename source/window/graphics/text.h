@@ -20,11 +20,13 @@ struct Character {
 class TextDrawer {
 private:
 	std::map<char, Character> characters;
-	Shader* shader = nullptr;
 	unsigned VAO;
 	unsigned VBO;
+	std::string text; // after render function
+	bool rendered = false;
+	glm::vec4 color;
 public:
 	void render(float x, float y, std::string text, glm::vec4 color); // should be called only in opengl render thread
-	void draw(); // should be called only in opengl render thread
+	bool draw(); // should be called only in opengl render thread
 	TextDrawer(std::string fontpath, unsigned height);
 };

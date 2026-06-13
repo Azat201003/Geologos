@@ -154,7 +154,6 @@ void FilledGlyph::draw() {
 		float vertices[8];
 		get_vertices(pos, vertices);
 		glVertexPointer(2, GL_FLOAT, 0, vertices);
-		// glColor3fv(FILL_COLOR);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }

@@ -150,7 +150,8 @@ public:
 		FocusableFilledGlyph::draw();
 		if (text_drawer == nullptr) {
 			text_drawer = new TextDrawer("resources/fonts/Lato-Black.ttf", 100);
+			text_drawer->render(0, 200, "some text", glm::vec4{1, .5, .5, 1});
 		}
-		text_drawer->render(0, 200, "some text", glm::vec4{1, .5, .5, 1});
+		text_drawer->draw();
 	}
 };
