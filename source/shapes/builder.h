@@ -5,6 +5,6 @@
 class ShapesBuilder {
 private:
 public:
-    PointsManager* points_manager;
-    void build();
+	PointsManager* points_manager;
+	void build();
 };

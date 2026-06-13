@@ -3,5 +3,5 @@
 #include <shapes/builder.h>
 
 void ShapesBuilder::build() {
-    points_manager = new PointsManager();
+	points_manager = new PointsManager();
 }

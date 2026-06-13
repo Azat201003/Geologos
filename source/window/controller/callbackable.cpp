@@ -3,5 +3,5 @@
 #include <window/controller/controller.h>
 
 Callbackable::Callbackable() {
-    EventHandler::add_listener(this);
+	EventHandler::add_listener(this);
 }
