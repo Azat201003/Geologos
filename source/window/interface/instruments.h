@@ -25,8 +25,11 @@ private:
 	bool selection = false;
 	const vec3 SELECTION_COLOR{.7, .7, .7};
 	const float SELECTION_LINE_WIDTH = 2;
+	unsigned VAO;
+	unsigned VBO;
+	void update_buffer();
 public:
-	PointSelectorInstrument(Context* context) : Instrument(context) { this->set_z_index(3); }
+	PointSelectorInstrument(Context* context);
 	void first_click_action_press(GLFWwindow*, vec2, bool) override;
 	void first_click_action_release(GLFWwindow*, vec2, bool) override;
 	void third_click_action_press(GLFWwindow*, vec2, bool) override;
