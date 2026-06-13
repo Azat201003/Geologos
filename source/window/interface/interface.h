@@ -50,11 +50,12 @@ public:
 	friend class FocusManager;
 };
 
-class FocusableGlyph : public Focusable, public InterfaceGlyph {
+class FocusableGlyph : public Focusable, public virtual InterfaceGlyph {
 public:
 	FocusableGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager) : Focusable(focus_manager), InterfaceGlyph(context, offset, scale) {}
-private:
+protected:
 	void on_update_pos() override;
+private:
 };
 
 class FocusManager : public Callbackable {
@@ -66,32 +67,34 @@ public:
 	void remove_focusable(Focusable*);
 };
 
-class FilledGlyph : public InterfaceGlyph, public ZIndexedDrawable {
+class FilledGlyph : public virtual InterfaceGlyph, public ZIndexedDrawable {
 protected:
 	vec3 FILL_COLOR{.1, .2, .3};
+	unsigned VAO;
+	unsigned VBO;
 public:
-	FilledGlyph(Context* context, vec2 offset, vec2 scale) : InterfaceGlyph(context, offset, scale) {
-		this->set_z_index(7);
-	}
-	FilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color) : InterfaceGlyph(context, offset, scale) {
-		vec3_dup(FILL_COLOR, fill_color);
-		set_z_index(7);
-	}
+	FilledGlyph(Context* context, vec2 offset, vec2 scale);
+	FilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color);
 	virtual void draw() override;
+	virtual void on_update_pos() override;
 };
 
-class FocusableFilledGlyph : public FocusableGlyph, public ZIndexedDrawable {
-protected:
-	vec3 FILL_COLOR{.1, .2, .3};
+class FocusableFilledGlyph : public FocusableGlyph, public FilledGlyph {
 public:
-	FocusableFilledGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager) : FocusableGlyph(context, offset, scale, focus_manager) {
-		set_z_index(7);
+	FocusableFilledGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager)
+		: FocusableGlyph(context, offset, scale, focus_manager)
+		, FilledGlyph(context, offset, scale)
+		, InterfaceGlyph(context, offset, scale) {
 	}
-	FocusableFilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color, FocusManager* focus_manager) : FocusableGlyph(context, offset, scale, focus_manager) {
-		FILL_COLOR[0] = fill_color[0]; FILL_COLOR[1] = fill_color[1]; FILL_COLOR[2] = fill_color[2];
-		set_z_index(7);
+	FocusableFilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color, FocusManager* focus_manager)
+		: FocusableGlyph(context, offset, scale, focus_manager)
+		, FilledGlyph(context, offset, scale, fill_color)
+		, InterfaceGlyph(context, offset, scale) {
 	}
-	virtual void draw() override;
+	void on_update_pos() override {
+		FocusableGlyph::on_update_pos();
+		FilledGlyph::on_update_pos();
+	}
 };
 
 
@@ -106,7 +109,10 @@ public:
 	ButtonGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color, std::function<void(void)> onclick, FocusManager* focus_manager)
 																				: FocusableFilledGlyph(context, offset, scale, fill_color, focus_manager), 
 																				Callbackable(),
-																				on_click_dummy(onclick) {set_z_index(8);}
+																				on_click_dummy(onclick)
+		, InterfaceGlyph(context, offset, scale) {
+			set_z_index(8);
+	}
 	virtual void on_click() { on_click_dummy(); }
 	virtual void on_hover() {/* on_hover_dummy(); */}
 	virtual void off_hover() {/* off_hover_dummy(); */}
@@ -119,7 +125,9 @@ protected:
 	bool selected = false;
 public:
 	RadioButtonGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color, std::function<void(void)> onclick, FocusManager* focus_manager)
-																				 : ButtonGlyph(context, offset, scale, fill_color, onclick, focus_manager) {}
+																				 : ButtonGlyph(context, offset, scale, fill_color, onclick, focus_manager) 
+		, InterfaceGlyph(context, offset, scale) {
+			set_z_index(8); }
 	void on_click() override;
 	virtual void on_select() {}
 	virtual void on_unselect() {}
@@ -128,7 +136,10 @@ public:
 
 class FieldGlyph : public Callbackable, public FocusableGlyph {	 
 public:
-	FieldGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager) : Callbackable(), FocusableGlyph(context, offset, scale, focus_manager) {}
+	FieldGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager)
+		: Callbackable()
+		, FocusableGlyph(context, offset, scale, focus_manager)
+		, InterfaceGlyph(context, offset, scale) {}
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 	void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) override;
 	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) override;
@@ -137,7 +148,9 @@ public:
 class InstrumentSelectionGlyph : public FocusableFilledGlyph {
 private:
 public:
-	InstrumentSelectionGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager) : FocusableFilledGlyph(context, offset, scale, focus_manager) {}
+	InstrumentSelectionGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager)
+			: FocusableFilledGlyph(context, offset, scale, focus_manager)
+		, InterfaceGlyph(context, offset, scale) {}
 };
 
 class DetailsGlyph : public FocusableFilledGlyph {
@@ -145,7 +158,9 @@ private:
 	vec3 FILL_COLOR{.1, .2, .3};
 	TextDrawer* text_drawer = nullptr;
 public:
-	DetailsGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager) : FocusableFilledGlyph(context, offset, scale, focus_manager) {}
+	DetailsGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager)
+		: FocusableFilledGlyph(context, offset, scale, focus_manager)
+		, InterfaceGlyph(context, offset, scale) {}
 	void draw() override {
 		FocusableFilledGlyph::draw();
 		if (text_drawer == nullptr) {

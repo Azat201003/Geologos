@@ -29,6 +29,7 @@ void PointSelectorInstrument::first_click_action_press(GLFWwindow*, vec2 begin_p
 }
 
 void PointSelectorInstrument::first_click_action_release(GLFWwindow*, vec2 end_pos, bool) {
+	if (!selection) return;
 	selection = false;
 	context->shapes_builder->points_manager->add_selected_points(glm::vec2(begin_pos[0], begin_pos[1]), glm::vec2(end_pos[0], end_pos[1]));
 }

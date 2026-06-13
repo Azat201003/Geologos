@@ -145,31 +145,51 @@ void FieldGlyph::cursor_position_callback(GLFWwindow* window, double xpos, doubl
 	context->get_current_instrument()->action_move(window, vec2{float(xpos), float(ypos)}, inside);
 }
 
+FilledGlyph::FilledGlyph(Context* context, vec2 offset, vec2 scale) : InterfaceGlyph(context, offset, scale) {
+	set_z_index(7);
+
+	glGenBuffers(1, &VBO);
+	glGenVertexArrays(1, &VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindVertexArray(VAO);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+FilledGlyph::FilledGlyph(Context* context, vec2 offset, vec2 scale, vec3 fill_color) : FilledGlyph(context, offset, scale) {
+	vec3_dup(FILL_COLOR, fill_color);
+}
+
+void FilledGlyph::on_update_pos() {
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindVertexArray(VAO);
+
+	float verticies[8];
+	get_vertices(pos, verticies);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
 void FilledGlyph::draw() {
 	auto shader = ShaderStorage::get_shader(ShaderKit::DEFAULT);
 	shader->use();
 	shader->set_vec4("inColor", glm::vec4(FILL_COLOR[0], FILL_COLOR[1], FILL_COLOR[2], 1));
 	shader->set_mat4("matrix", matrix);
-	glEnableClientState(GL_VERTEX_ARRAY);
-		float vertices[8];
-		get_vertices(pos, vertices);
-		glVertexPointer(2, GL_FLOAT, 0, vertices);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
 
-void FocusableFilledGlyph::draw() {
-	auto shader = ShaderStorage::get_shader(ShaderKit::DEFAULT);
-	shader->use();
-	shader->set_vec4("inColor", glm::vec4(FILL_COLOR[0], FILL_COLOR[1], FILL_COLOR[2], 1));
-	shader->set_mat4("matrix", matrix);
-	glEnableClientState(GL_VERTEX_ARRAY);
-		float vertices[8];
-		get_vertices(pos, vertices);
-		glVertexPointer(2, GL_FLOAT, 0, vertices);
-		glColor3fv(FILL_COLOR);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glDisableClientState(GL_VERTEX_ARRAY);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindVertexArray(VAO);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 void Focusable::on_z_index_update() {
