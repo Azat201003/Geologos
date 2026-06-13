@@ -32,9 +32,10 @@ Drawable::~Drawable() {
 }
 
 void ZIndexedDrawable::pre_draw() {
+	push_matrix();
 	matrix = glm::translate(matrix, glm::vec3(0, 0, (-10+this->get_z_index())/10.f));
 }
 
 void ZIndexedDrawable::post_draw() {
-	matrix = glm::translate(matrix, glm::vec3(0, 0, (10-this->get_z_index())/10.f));
+	pop_matrix();
 }

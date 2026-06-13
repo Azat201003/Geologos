@@ -17,7 +17,6 @@ void Point::get_pos(vec2 out) {
 
 void PointsManager::draw() {
 	auto shader = ShaderStorage::get_shader(ShaderKit::DEFAULT); 
-	shader->use();
 	shader->set_mat4("matrix", matrix);
 	if (points.empty()) return;
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -27,13 +26,15 @@ void PointsManager::draw() {
 			shader->set_vec4("inColor", glm::vec4(SELECTED_POINT_COLOR[0], SELECTED_POINT_COLOR[1], SELECTED_POINT_COLOR[2], 1));
 			glDrawElements(GL_POINTS, selected_ids.size(), GL_UNSIGNED_INT, selected_ids.data());
 		}
+		push_matrix();
 		matrix = glm::translate(matrix, glm::vec3(0, 0, .01));
 		shader->set_mat4("matrix", matrix);
 		glPointSize(POINTS_SIZE);
 		shader->set_vec4("inColor", glm::vec4(POINT_COLOR[0], POINT_COLOR[1], POINT_COLOR[2], 1));
-		matrix = glm::translate(matrix, glm::vec3(0, 0, -.01));
 		glDrawArrays(GL_POINTS, 0, poses.size()/2);
+		pop_matrix();
 	glDisableClientState(GL_VERTEX_ARRAY);
+
 }
 
 Point::Point(float* pos) {
