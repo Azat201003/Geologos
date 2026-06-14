@@ -7,6 +7,7 @@
 
 #include FT_FREETYPE_H
 #include <map>
+#include <memory>
 
 #include <window/graphics/shaders.h>
 
@@ -17,16 +18,41 @@ struct Character {
 	unsigned int advance;
 };
 
-class TextDrawer {
+class Font {
 private:
 	std::map<char, Character> characters;
+public:
+	Font(const std::string& path, unsigned size);
+	Character get_char(char ch);
+	void use(char ch); // texture
+};
+
+class TextDrawer {
+private:
 	unsigned VAO;
 	unsigned VBO;
-	std::string text; // after render function
+
+	// after render function
 	bool rendered = false;
+	std::string text;
 	glm::vec4 color;
+	std::shared_ptr<Font> font;
 public:
-	void render(float x, float y, std::string text, glm::vec4 color); // should be called only in opengl render thread
-	bool draw(); // should be called only in opengl render thread
-	TextDrawer(std::string fontpath, unsigned height);
+	TextDrawer();
+	void render(std::shared_ptr<Font> font, float x, float y, std::string text, glm::vec4 color);
+	bool draw();
 };
+
+enum class FontKit {
+	DEFAULT,
+};
+
+class FontStorage {
+private:
+	static std::unordered_map<FontKit, std::shared_ptr<Font>> fonts;
+	static const std::unordered_map<FontKit, std::pair<std::string, unsigned>> font_kits;
+public:
+	static void load();
+	static std::shared_ptr<Font> get_font(FontKit);
+};
+

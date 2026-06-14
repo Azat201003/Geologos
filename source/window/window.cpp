@@ -1,6 +1,6 @@
+#include <window/graphics/shaders.h>
+#include <window/graphics/text.h>
 #include <window/window.h>
-
-#include "window/graphics/shaders.h"
 
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/glad.h>
@@ -61,7 +61,8 @@ int Window::run() {
 
 	glUseProgram(0);
 	
-		ShaderStorage::load();
+	ShaderStorage::load();
+	FontStorage::load();
 	context->shapes_builder->build();
 	InterfaceBuilder* interface_builder = new DefaultInterfaceBuilder();
 	interface_builder->build(context, w, h);

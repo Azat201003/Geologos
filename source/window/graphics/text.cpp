@@ -6,12 +6,11 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-
-#include <algorithm>
+#include <spdlog/spdlog.h>
 
 FT_Library ft;
 
-TextDrawer::TextDrawer(std::string fontpath, unsigned height) {
+Font::Font(const std::string& fontpath, unsigned size) {
 	auto err = FT_Init_FreeType(&ft);
 	if (err) {
 		throw err; 
@@ -23,7 +22,7 @@ TextDrawer::TextDrawer(std::string fontpath, unsigned height) {
 		throw err;
 	}
 
-	FT_Set_Pixel_Sizes(face, 0, height);
+	FT_Set_Pixel_Sizes(face, 0, size);
 
 	// Disable byte-alignment restriction
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); 
@@ -66,36 +65,40 @@ TextDrawer::TextDrawer(std::string fontpath, unsigned height) {
 
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
-	
+	spdlog::info("Font loaded ({})", fontpath);
+}
+
+void Font::use(char ch) {
+	glBindTexture(GL_TEXTURE_2D, characters[ch].texture_id);
+}
+
+Character Font::get_char(char ch) {
+	return characters[ch];
+}
+
+TextDrawer::TextDrawer() {	
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+}
+
+void TextDrawer::render(std::shared_ptr<Font> font, float x, float y, std::string text, glm::vec4 color) {
+	rendered = true;
+	this->text = text;
+	this->color = color;
+	this->font = font;
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
+	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-}
-
-void TextDrawer::render(float x, float y, std::string text, glm::vec4 color) {
-	rendered = true;
-	this->text = text;
-	this->color = color;
-
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
 	float vertices[text.size()*6][5];
-
 	int i = 0;
 	for (const char c : text) {
-		Character character = characters[c];
+		Character character = font->get_char(c);
 
 		float xpos = x + character.bearing_x;
 		float ypos = y - character.size_y;
@@ -169,8 +172,7 @@ bool TextDrawer::draw() {
 
 	int i = 0;
 	for (const char& c : text) {
-		Character character = characters[c];
-		glBindTexture(GL_TEXTURE_2D, character.texture_id);
+		font->use(c);
 		glDrawArrays(GL_TRIANGLES, 6*i, 6);
 		i++;
 	}
@@ -181,5 +183,22 @@ bool TextDrawer::draw() {
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	return true;
+}
+
+const std::unordered_map<FontKit, std::pair<std::string, unsigned>> FontStorage::font_kits {
+	{FontKit::DEFAULT, {"resources/fonts/Lato-Black.ttf", 32}}
+};
+
+std::unordered_map<FontKit, std::shared_ptr<Font>> FontStorage::fonts {};
+
+void FontStorage::load() {
+	for (auto font_kit : font_kits) {
+		fonts.emplace(font_kit.first, std::make_shared<Font>(font_kit.second.first, font_kit.second.second));
+	}
+	spdlog::info("Fonts loaded");
+}
+
+std::shared_ptr<Font> FontStorage::get_font(FontKit font_kit) {
+	return fonts[font_kit];
 }
 
