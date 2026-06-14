@@ -1,8 +1,8 @@
 #include <glad/glad.h>
+#include <spdlog/spdlog.h>
 #include <window/graphics/shaders.h>
 
 #include <fstream>
-#include <iostream>
 #include <sstream>
 
 std::string Shader::get_file_text(std::string path) {
@@ -15,9 +15,11 @@ std::string Shader::get_file_text(std::string path) {
 		file.close();
 		return stream.str();
 	} catch (const std::exception &e) {
-		std::cout << path << ": troubles with shader loading: " << std::endl;
-		std::cout << e.what() << std::endl;
-		exit(1);
+		spdlog::error(
+R"({}: troubles with shader loading:
+{})",
+		path, e.what());
+		return "";
 	}
 }
 
@@ -31,7 +33,7 @@ void Shader::compile_shader(unsigned shader_id, const char *content) {
 	glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		glGetShaderInfoLog(shader_id, 512, NULL, info_log);
-		std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << info_log << std::endl;
+		spdlog::error("Shader compilation failed: {}", info_log);
 	};
 }
 
@@ -43,7 +45,9 @@ Shader::Shader(const char *vertex_path, const char *fragment_path) {
 	vertex = glCreateShader(GL_VERTEX_SHADER);
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
 	compile_shader(vertex, vertex_code.data());
+	spdlog::info("Vertex shader compiled ({})", vertex_path);
 	compile_shader(fragment, fragment_code.data());
+	spdlog::info("Fragment shader compiled ({})", fragment_path);
 
 	program_id = glCreateProgram();
 	glAttachShader(program_id, vertex);
@@ -54,8 +58,7 @@ Shader::Shader(const char *vertex_path, const char *fragment_path) {
 	glGetProgramiv(program_id, GL_LINK_STATUS, &success);
 	if (!success) {
 		glGetProgramInfoLog(program_id, 512, NULL, info_log);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-							<< info_log << std::endl;
+		spdlog::error("Shaders linking failed: {}", info_log);
 	}
 
 	glDeleteShader(vertex);
@@ -97,6 +100,7 @@ void ShaderStorage::load() {
 	for (auto shader_kit : shader_kits) {
 		shaders.emplace(shader_kit.first, std::make_shared<Shader>(shader_kit.second.first, shader_kit.second.second));
 	}
+	spdlog::info("Shaders loaded");
 }
 
 std::shared_ptr<Shader> ShaderStorage::get_shader(ShaderKit shader_kit) {

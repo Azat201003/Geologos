@@ -10,6 +10,8 @@
 #include <window/interface/builder.h>
 #include <window/interface/instruments.h>
 #include <window/graphics/matrix.h>
+#include <spdlog/spdlog.h>
+
 Window::Window() {
 	context = new Context{};
 	context->shapes_builder = new ShapesBuilder();
@@ -18,16 +20,21 @@ Window::Window() {
 
 int Window::run() {	   
 	if (!glfwInit()) {
+		spdlog::critical("GLFW initialization failed");
 		return -1;
 	}
+	spdlog::info("GLFW successfuly initialized");
 
 	GLFWwindow *window;
 	window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, TITLE, NULL, NULL);
 	
 	if (!window) {
+		spdlog::critical("GLFW window creation failed");
 		glfwTerminate();
 		return -1;
 	}
+	
+	spdlog::info("GLFW window successfuly created");
 
 	int w, h;
 	glfwGetWindowSize(window, &w, &h);
@@ -35,13 +42,17 @@ int Window::run() {
 	glfwMakeContextCurrent(window);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		spdlog::critical("GLAD loading failed");
 		return -1;
 	}
+	spdlog::info("GLAD successfuly loaded");
 
 	glfwSetKeyCallback(window, EventHandler::key_callback);
 	glfwSetMouseButtonCallback(window, EventHandler::mouse_button_callback);
 	glfwSetCursorPosCallback(window, EventHandler::cursor_position_callback);
 	glfwSetFramebufferSizeCallback(window, EventHandler::resize_callback);
+	
+	spdlog::info("Callbacks set");
 
 	glEnable(GL_DEPTH_TEST);
 

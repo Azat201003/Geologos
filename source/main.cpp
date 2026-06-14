@@ -1,11 +1,8 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <shapes/builder.h>
+#include <spdlog/spdlog.h>
 #include <window/window.h>
 
-#include <math.h>
-
 int main() {
+	spdlog::info("Program started");
   Window *window = new Window();
   return window->run();
 }
