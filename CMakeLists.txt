@@ -5,13 +5,15 @@ set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+
 find_package(glfw3 REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 
-add_library(glad STATIC external/glad/src/glad.c)
+add_library(glad STATIC external/glad/src/gl.c)
 target_include_directories(glad PUBLIC external/glad/include)
 
 include_directories(source)
@@ -35,17 +37,23 @@ add_executable(Geologos
 	source/window/controller/callbackable.cpp
 )
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	target_compile_options(Geologos PRIVATE 
-		-Wall 
-		-Wextra 
-		-Wdocumentation # Clang-specific warning
-		-fcolor-diagnostics
-		-Weverything
-	)
-endif()
-
 target_include_directories(Geologos PRIVATE "external")
-target_include_directories(Geologos PRIVATE source)
 
 target_link_libraries(Geologos PRIVATE glfw OpenGL::GL glad Freetype::Freetype spdlog fmt)
+
+target_include_directories(Geologos PRIVATE source)
+
+
+target_compile_options(Geologos PRIVATE 
+	-fcolor-diagnostics
+	-ffunction-sections
+	-fdata-sections
+	-Oz
+	-O2
+	-g
+)
+
+add_custom_command(TARGET Geologos POST_BUILD
+    COMMAND ${CMAKE_STRIP} --strip-all $<TARGET_FILE:Geologos>
+)
+

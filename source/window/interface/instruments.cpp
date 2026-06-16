@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <window/graphics/helpers.h>
 #include <window/graphics/matrix.h>
 #include <window/graphics/shaders.h>

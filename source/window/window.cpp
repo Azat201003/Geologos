@@ -3,7 +3,7 @@
 #include <window/window.h>
 
 #define GLAD_GL_IMPLEMENTATION
-#include <glad/glad.h>
+#include <glad/gl.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <math.h>
@@ -41,7 +41,7 @@ int Window::run() {
 
 	glfwMakeContextCurrent(window);
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+	if (!gladLoadGL(glfwGetProcAddress)) {
 		spdlog::critical("GLAD loading failed");
 		return -1;
 	}

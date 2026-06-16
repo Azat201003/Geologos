@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <window/graphics/drawer.h>
 #include <window/graphics/matrix.h>

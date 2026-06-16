@@ -157,16 +157,32 @@ class DetailsGlyph : public FocusableFilledGlyph {
 private:
 	vec3 FILL_COLOR{.1, .2, .3};
 	TextDrawer* text_drawer = nullptr;
+	const float xpadding = 10.f;
+	const float ypadding = 2.f;
+	TextDrawer::RenderParams text_render_params = TextDrawer::RenderParams{
+		.font = FontStorage::get_font(FontKit::REGULAR_PARAGRAPH),
+		.x = this->pos[0] + xpadding,
+		.y = this->pos[1] + ypadding,
+		.width = this->pos[2] - xpadding,
+		.text = "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. Jackdaws love my big sphinx of quartz. The five boxing wizards jump quickly. How quickly daft jumping zebras vex!",
+		.color = glm::vec4{1, 1, 1, 1}
+	};
 public:
 	DetailsGlyph(Context* context, vec2 offset, vec2 scale, FocusManager* focus_manager)
 		: FocusableFilledGlyph(context, offset, scale, focus_manager)
-		, InterfaceGlyph(context, offset, scale) {}
+		, InterfaceGlyph(context, offset, scale) {
+			text_drawer = new TextDrawer();
+			text_drawer->render(text_render_params);
+		}
 	void draw() override {
 		FocusableFilledGlyph::draw();
-		if (text_drawer == nullptr) {
-			text_drawer = new TextDrawer();
-			text_drawer->render(FontStorage::get_font(FontKit::DEFAULT), 0, 200, "some text", glm::vec4{1, .5, .5, 1});
-		}
 		text_drawer->draw();
+	}
+	void on_update_pos() override {
+		FocusableFilledGlyph::on_update_pos();
+		text_render_params.x = this->pos[0] + xpadding;
+		text_render_params.y = this->pos[1] + ypadding;
+		text_render_params.width = this->pos[2] - xpadding;
+		text_drawer->render(text_render_params);
 	}
 };

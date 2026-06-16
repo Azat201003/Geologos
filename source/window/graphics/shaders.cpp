@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <spdlog/spdlog.h>
 #include <window/graphics/shaders.h>
 

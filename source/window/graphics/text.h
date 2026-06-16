@@ -14,14 +14,16 @@
 struct Character {
 	unsigned int texture_id;
 	float size_x, size_y;
-	float bearing_x, bearing_y;
+	float off_x, off_y;
 	unsigned int advance;
 };
 
 class Font {
 private:
 	std::map<char, Character> characters;
+	unsigned size;
 public:
+	unsigned get_size();
 	Font(const std::string& path, unsigned size);
 	Character get_char(char ch);
 	void use(char ch); // texture
@@ -37,14 +39,25 @@ private:
 	std::string text;
 	glm::vec4 color;
 	std::shared_ptr<Font> font;
+
+	void char_vertices(Character character, float x, float y, float vertices[6][5]);
 public:
+	struct RenderParams {
+		std::shared_ptr<Font> font;
+		float	x;
+		float y;
+		float width;
+		std::string text;
+		glm::vec4 color{.9, .9, .9, 1.};
+	};
+	
 	TextDrawer();
-	void render(std::shared_ptr<Font> font, float x, float y, std::string text, glm::vec4 color);
+	void render(const RenderParams&);
 	bool draw();
 };
 
 enum class FontKit {
-	DEFAULT,
+	REGULAR_PARAGRAPH,
 };
 
 class FontStorage {
